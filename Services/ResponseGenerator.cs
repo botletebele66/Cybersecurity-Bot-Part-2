@@ -1,71 +1,46 @@
 ﻿using System;
-using CybersecurityBotPart2.Data;
-using CybersecurityBotPart2.Services;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CybersecurityBotPart2.Services
 {
-    /// <summary>
-    /// Creates the chatbot's response to user messages
-    /// </summary>
     public class ResponseGenerator
     {
-        private ConversationMemory memory;
+        private readonly ConversationMemory memory;
+        private readonly Dictionary<string, string> keywordResponses;
 
-        public ResponseGenerator(ConversationMemory userMemory)
+        public ResponseGenerator(ConversationMemory memory)
         {
-            memory = userMemory;
+            this.memory = memory;
+            keywordResponses = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                {"password", "Use strong, unique passwords and a password manager. Avoid reusing passwords."},
+                {"phishing", "Phishing emails try to trick you into giving away personal data. Never click suspicious links."},
+                {"ransomware", "Ransomware locks your files until you pay. Keep backups and avoid unknown downloads."},
+                {"firewall", "A firewall monitors network traffic and blocks unauthorised access."},
+                {"privacy", "Limit what you share online, use privacy settings, and consider a VPN."},
+                {"scam", "Online scams include fake shops, lottery wins, and romance scams. Be sceptical of too-good-to-be-true offers."},
+                {"malware", "Install antivirus software, keep it updated, and don't download from untrusted sources."}
+            };
         }
 
-        // Main method: takes user message and returns bot response
         public string GenerateResponse(string userMessage)
         {
-            // Handle empty input
-            if (string.IsNullOrWhiteSpace(userMessage))
+            memory.AddToHistory($"User: {userMessage}");
+
+            // Check for keyword matches
+            foreach (var kvp in keywordResponses)
             {
-                return "Please type something so I can help!";
+                if (userMessage.Contains(kvp.Key, StringComparison.OrdinalIgnoreCase))
+                {
+                    memory.SetCurrentTopic(kvp.Key);
+                    string intro = memory.GetPersonalizedIntro(kvp.Key);
+                    return intro + kvp.Value;
+                }
             }
 
-            // Check if asking for user's name
-            if (IsAskingForName(userMessage))
-            {
-                return "I didn't catch your name! What's your name?";
-            }
-
-            // Identify the topic
-            string topic = KeywordEngine.IdentifyTopic(userMessage);
-
-            // Remember what topic we're discussing
-            memory.SetCurrentTopic(topic);
-
-            // If topic is PASSWORD, PHISHING, etc., remember it as interest
-            if (topic != "GENERAL")
-            {
-                memory.AddInterest(topic);
-            }
-
-            // Check if user is asking for more of same topic
-            if (KeywordEngine.IsRequestingContinuation(userMessage) &&
-                memory.GetLastTopic() != "")
-            {
-                topic = memory.GetLastTopic();
-            }
-
-            // Get response
-            string baseResponse = ResponseLibrary.GetResponse(topic);
-
-            // Personalize with user's interests
-            string personalized = memory.GetPersonalizedIntro(topic) + baseResponse;
-
-            // Adjust for sentiment
-            string finalResponse = SentimentAnalyzer.AnalyzeAndAdjust(userMessage, personalized);
-
-            return finalResponse;
-        }
-
-        private bool IsAskingForName(string message)
-        {
-            string lower = message.ToLower();
-            return lower.Contains("name") && lower.Contains("your");
+            // Fallback response
+            return "I'm not sure about that. You can ask me about passwords, phishing, ransomware, and more!";
         }
     }
 }

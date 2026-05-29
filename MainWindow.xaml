@@ -1,59 +1,287 @@
 ﻿<Window x:Class="CybersecurityBotPart2.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Cybersecurity Awareness Bot" Height="775" Width="950"
-        Background="#F5F5F5" WindowStartupLocation="CenterScreen">
+        Title="Cybrog – Cybersecurity Assistant" Height="775" Width="950"
+        WindowStartupLocation="CenterScreen"
+        Background="#2B2B2B"
+        Loaded="Window_Loaded">
+
+    <Window.Resources>
+        <Color x:Key="DarkGrey">#2B2B2B</Color>
+        <Color x:Key="BeigeCard">#F5E6D3</Color>
+        <Color x:Key="DarkBeige">#EAD5BC</Color>
+        <Color x:Key="YellowAccent">#FBC02D</Color>
+        <Color x:Key="RedAccent">#D32F2F</Color>
+        <Color x:Key="GreenAccent">#388E3C</Color>
+        <Color x:Key="OrangeAccent">#F57C00</Color>
+        <Color x:Key="TextDark">#2E2E2E</Color>
+        <Color x:Key="TextLight">#F0F0F0</Color>
+
+        <SolidColorBrush x:Key="DarkGreyBrush" Color="{StaticResource DarkGrey}"/>
+        <SolidColorBrush x:Key="BeigeCardBrush" Color="{StaticResource BeigeCard}"/>
+        <SolidColorBrush x:Key="DarkBeigeBrush" Color="{StaticResource DarkBeige}"/>
+        <SolidColorBrush x:Key="YellowAccentBrush" Color="{StaticResource YellowAccent}"/>
+        <SolidColorBrush x:Key="RedAccentBrush" Color="{StaticResource RedAccent}"/>
+        <SolidColorBrush x:Key="GreenAccentBrush" Color="{StaticResource GreenAccent}"/>
+        <SolidColorBrush x:Key="OrangeAccentBrush" Color="{StaticResource OrangeAccent}"/>
+        <SolidColorBrush x:Key="TextDarkBrush" Color="{StaticResource TextDark}"/>
+        <SolidColorBrush x:Key="TextLightBrush" Color="{StaticResource TextLight}"/>
+
+        <DropShadowEffect x:Key="CardShadow" BlurRadius="10" ShadowDepth="2" Opacity="0.3" Color="Black"/>
+
+        <Style x:Key="QuickButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource YellowAccentBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextDarkBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Margin" Value="0,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                CornerRadius="8" BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#FDD835"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SendButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource GreenAccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                CornerRadius="8" BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#43A047"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TopicButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource OrangeAccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                CornerRadius="8" BorderThickness="0"
+                                ToolTip="Click to learn more about this topic.">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#FB8C00"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid>
-        <!-- LEFT SIDE: Chat Display -->
-        <StackPanel Orientation="Vertical" Margin="10">
-            <TextBlock Text="💬 Chat with Your Cybersecurity Bot" 
-                       FontSize="20" FontWeight="Bold" 
-                       Foreground="#1976D2" Margin="0,0,0,10"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-            <!-- Messages Display Area -->
-            <ScrollViewer Height="500" Background="White" 
-                         BorderThickness="1" BorderBrush="#CCCCCC">
-                <ItemsControl Name="ChatMessages" Padding="10">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding}" 
-                                      TextWrapping="Wrap" 
-                                      Margin="0,5" 
-                                      Foreground="#333"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+        <Border Grid.Row="0" Background="{StaticResource BeigeCardBrush}" Padding="10,8">
+            <Grid>
+                <TextBlock Text="CYBROG" FontSize="22" FontWeight="Bold"
+                           Foreground="{StaticResource TextDarkBrush}" VerticalAlignment="Center"/>
+                <ToggleButton x:Name="ThemeToggle" Content="☀️" Width="40" Height="40"
+                              HorizontalAlignment="Right" VerticalAlignment="Center"
+                              ToolTip="Toggle light/dark theme"
+                              Click="ThemeToggle_Click" Cursor="Hand"
+                              Background="Transparent" BorderThickness="0"
+                              Foreground="{StaticResource TextDarkBrush}" FontSize="18"/>
+            </Grid>
+        </Border>
 
-            <!-- Input Area -->
-            <TextBox Name="UserInput" Height="50" Margin="0,10,0,0" 
-                    Padding="10" TextWrapping="Wrap" 
-                    FontSize="14" Foreground="#333"/>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
 
-            <Button Name="SendButton" Content="Send Message" 
-                   Click="SendButton_Click" 
-                   Height="40" Margin="0,10,0,0" 
-                   Background="#4CAF50" Foreground="White" 
-                   FontSize="14" FontWeight="Bold" 
-                   Cursor="Hand"/>
+            <Border Grid.Column="0" Background="{StaticResource BeigeCardBrush}"
+                    CornerRadius="12" Margin="10,10,5,10" Padding="15"
+                    Effect="{StaticResource CardShadow}">
+                <StackPanel>
+                    <TextBlock Text="💬 Chat with Cybrog" FontSize="18" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextDarkBrush}" Margin="0,0,0,10"/>
 
-            <!-- Quick Question Buttons -->
-            <TextBlock Text="Quick Questions:" FontSize="14" 
-                      FontWeight="Bold" Margin="0,15,0,5"/>
-            <WrapPanel>
-                <Button Content="About Passwords" Click="QuickQuestion_Click" 
-                       Tag="password" Margin="5" Padding="10,8" 
-                       Background="#2196F3" Foreground="White"/>
-                <Button Content="Phishing Tips" Click="QuickQuestion_Click" 
-                       Tag="phishing" Margin="5" Padding="10,8" 
-                       Background="#2196F3" Foreground="White"/>
-                <Button Content="Privacy Info" Click="QuickQuestion_Click" 
-                       Tag="privacy" Margin="5" Padding="10,8" 
-                       Background="#2196F3" Foreground="White"/>
-                <Button Content="More Tips" Click="QuickQuestion_Click" 
-                       Tag="more" Margin="5" Padding="10,8" 
-                       Background="#2196F3" Foreground="White"/>
-            </WrapPanel>
-        </StackPanel>
+                    <ScrollViewer x:Name="ChatScrollViewer" Height="460" VerticalScrollBarVisibility="Auto"
+                                  Background="Transparent">
+                        <ListBox Name="ChatListBox" BorderThickness="0" Background="Transparent"
+                                 ItemsSource="{Binding Messages}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,4">
+                                        <Border CornerRadius="12" Padding="10,6" MaxWidth="350"
+                                                HorizontalAlignment="{Binding Alignment}"
+                                                Background="{Binding BackgroundColor}"
+                                                BorderThickness="0"
+                                                ToolTip="Right‑click to copy">
+                                            <TextBlock Text="{Binding Text}" TextWrapping="Wrap"
+                                                       FontSize="14" Foreground="{StaticResource TextDarkBrush}"/>
+                                            <Border.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Copy" Click="CopyMessage_Click"/>
+                                                </ContextMenu>
+                                            </Border.ContextMenu>
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </ScrollViewer>
+
+                    <StackPanel x:Name="TypingIndicator" Orientation="Horizontal" Margin="5,5,0,0"
+                                Visibility="Collapsed">
+                        <TextBlock Text="Cybrog is typing" FontSize="13"
+                                   Foreground="{StaticResource TextDarkBrush}" Margin="0,0,5,0"/>
+                        <TextBlock x:Name="DotsAnimation" Text="..." FontSize="13"
+                                   Foreground="{StaticResource TextDarkBrush}"/>
+                    </StackPanel>
+
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Name="UserInput" Grid.Column="0"
+                                 Height="45" Padding="10"
+                                 FontSize="14" Foreground="{StaticResource TextDarkBrush}"
+                                 Background="White" BorderBrush="#D0D0D0" BorderThickness="1"
+                                 VerticalContentAlignment="Center"
+                                 TextWrapping="Wrap" AcceptsReturn="False"
+                                 KeyDown="UserInput_KeyDown"/>
+                        <Button Name="SendButton" Grid.Column="1"
+                                Content="Send" Click="SendButton_Click"
+                                Style="{StaticResource SendButtonStyle}"
+                                Width="80" Margin="8,0,0,0"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Background="{StaticResource BeigeCardBrush}"
+                    CornerRadius="12" Margin="5,10,10,10" Padding="15"
+                    Effect="{StaticResource CardShadow}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="CYBROG" FontSize="28" FontWeight="ExtraBold"
+                                   Foreground="{StaticResource RedAccentBrush}"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Your colourful security guide" FontSize="14"
+                                   Foreground="{StaticResource TextDarkBrush}"
+                                   HorizontalAlignment="Center" Margin="0,5,0,15"/>
+
+                        <Border Background="{StaticResource DarkBeigeBrush}" CornerRadius="8" Padding="12" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="What's your name?" FontSize="15"
+                                           Foreground="{StaticResource TextDarkBrush}" Margin="0,0,0,8"/>
+                                <TextBox Name="UserNameTextBox" Height="38"
+                                         FontSize="14" Foreground="{StaticResource TextDarkBrush}"
+                                         Background="White" BorderBrush="#D0D0D0"
+                                         Padding="8" VerticalContentAlignment="Center"/>
+                                <Button Content="Introduce yourself" Click="SubmitName_Click"
+                                        Background="{StaticResource YellowAccentBrush}"
+                                        Foreground="{StaticResource TextDarkBrush}" FontSize="14" FontWeight="Bold"
+                                        Height="38" Margin="0,8,0,0" Cursor="Hand"
+                                        Style="{StaticResource QuickButtonStyle}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Name="GreetingLabel" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextDarkBrush}"
+                                   HorizontalAlignment="Center" Margin="0,0,0,8"
+                                   TextWrapping="Wrap" Visibility="Collapsed"/>
+                        <TextBlock Name="MemoryLabel" FontSize="13"
+                                   Foreground="{StaticResource RedAccentBrush}"
+                                   HorizontalAlignment="Center" TextWrapping="Wrap"
+                                   Margin="0,0,0,12" Visibility="Collapsed"/>
+
+                        <TextBlock Text="⚡ Quick Topics" FontSize="16"
+                                   FontWeight="Bold" Foreground="{StaticResource TextDarkBrush}"
+                                   Margin="0,8,0,8"/>
+                        <WrapPanel>
+                            <Button Content="Passwords" Click="TopicButton_Click" Tag="password" Style="{StaticResource TopicButtonStyle}"/>
+                            <Button Content="Phishing" Click="TopicButton_Click" Tag="phishing" Style="{StaticResource TopicButtonStyle}"/>
+                            <Button Content="Ransomware" Click="TopicButton_Click" Tag="ransomware" Style="{StaticResource TopicButtonStyle}"/>
+                            <Button Content="Firewalls" Click="TopicButton_Click" Tag="firewall" Style="{StaticResource TopicButtonStyle}"/>
+                            <Button Content="Privacy" Click="TopicButton_Click" Tag="privacy" Style="{StaticResource TopicButtonStyle}"/>
+                            <Button Content="Scams" Click="TopicButton_Click" Tag="scam" Style="{StaticResource TopicButtonStyle}"/>
+                            <Button Content="Malware" Click="TopicButton_Click" Tag="malware" Style="{StaticResource TopicButtonStyle}"/>
+                        </WrapPanel>
+
+                        <Border Background="{StaticResource DarkBeigeBrush}" CornerRadius="8" Padding="10" Margin="0,20,0,0">
+                            <StackPanel>
+                                <TextBlock Text="📜 Cybersecurity History" FontSize="14" FontWeight="Bold"
+                                           Foreground="{StaticResource TextDarkBrush}" Margin="0,0,0,5"/>
+                                <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{StaticResource TextDarkBrush}"
+                                           LineHeight="18">
+                                    <Run Text="1970s:" FontWeight="Bold"/>
+                                    <Run Text=" First virus (Creeper) &amp; first antivirus (Reaper)."/>
+                                    <LineBreak/>
+                                    <Run Text="1980s:" FontWeight="Bold"/>
+                                    <Run Text=" Morris Worm crashes 10% of the internet; commercial antivirus emerges."/>
+                                    <LineBreak/>
+                                    <Run Text="1990s:" FontWeight="Bold"/>
+                                    <Run Text=" Firewalls &amp; encryption for e‑commerce; Melissa virus spreads via email."/>
+                                    <LineBreak/>
+                                    <Run Text="2000s:" FontWeight="Bold"/>
+                                    <Run Text=" SQL Slammer, Stuxnet (first cyber‑weapon)."/>
+                                    <LineBreak/>
+                                    <Run Text="2010s:" FontWeight="Bold"/>
+                                    <Run Text=" Ransomware explosion (WannaCry), Equifax breach, GDPR."/>
+                                    <LineBreak/>
+                                    <Run Text="2020s:" FontWeight="Bold"/>
+                                    <Run Text=" SolarWinds attack, Log4Shell, AI‑powered threats."/>
+                                    <LineBreak/>
+                                    <Run Text="Cybersecurity evolved from pranks to a core pillar of global security." FontStyle="Italic"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Background="{StaticResource DarkGreyBrush}" Padding="8,4">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="StatusConnection" Text="🟢 Online" FontSize="12"
+                           Foreground="{StaticResource GreenAccentBrush}" Margin="0,0,15,0"/>
+                <TextBlock x:Name="StatusTime" Text="" FontSize="12"
+                           Foreground="{StaticResource TextLightBrush}"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>
